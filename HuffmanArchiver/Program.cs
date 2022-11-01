@@ -42,15 +42,14 @@ namespace HuffmanArchiver
             }
         }
 
-        static void Main()
+        private const string UncodedText = @"D:\SerBor\Dev\huffman-archiver\UncodedText.txt";
+        private const string EncodedText = @"D:\SerBor\Dev\huffman-archiver\EncodedText.txt";
+        private const string DecodedText = @"D:\SerBor\Dev\huffman-archiver\DecodedText.txt";
+        
+        private static void Main()
         {
-            Console.OutputEncoding = Encoding.Unicode;
-            const string uncodedText = @"D:\SerBor\Dev\huffman-archiver\UncodedText.txt";
-            const string encodedText = @"D:\SerBor\Dev\huffman-archiver\EncodedText.txt";
-            const string decodedText = @"D:\SerBor\Dev\huffman-archiver\DecodedText.txt";
-
             // Исходная таблица
-            var table = CreateProbabilityTable(uncodedText, out var symbolCount);
+            var table = CreateProbabilityTable(UncodedText, out var symbolCount);
             Console.WriteLine("Таблица вероятностей символов в тексте:");
             PrintDictionary(table);
             Console.WriteLine("\nКоличество символов в тексте: {0}", symbolCount);
@@ -63,19 +62,16 @@ namespace HuffmanArchiver
             PrintDictionary(codeTable);
 
             //Кодирование текста
-            EncodeFile(uncodedText, encodedText, 4, out var comresCoef);
+            EncodeFile(UncodedText, EncodedText, 4, out var comresCoef);
             Console.WriteLine("Коэффициент сжатия: K = {0}", comresCoef);
 
             //Декодирование текста
-            DecodeFile(encodedText, decodedText, 8, 10);
-
-            var fileUncode = new FileInfo(uncodedText);
-            var fileEncode = new FileInfo(encodedText);
-            var fileDecode = new FileInfo(decodedText);
-
-            Console.WriteLine("\nРазмер исходного файла составляет {0} байт", fileUncode.Length);
-            Console.WriteLine("Размер сжатого файла составляет {0} байт", fileEncode.Length);
-            Console.WriteLine("Размер декодированного файла составляет {0} байт", fileDecode.Length);
+            DecodeFile(EncodedText, DecodedText, 8, 10);
+            
+            //Итоговая информация.
+            Console.WriteLine("\nРазмер исходного файла составляет {0} байт", new FileInfo(UncodedText).Length);
+            Console.WriteLine("Размер сжатого файла составляет {0} байт", new FileInfo(EncodedText).Length);
+            Console.WriteLine("Размер декодированного файла составляет {0} байт", new FileInfo(DecodedText).Length);
         }
 
         /// <summary>
@@ -84,7 +80,7 @@ namespace HuffmanArchiver
         /// <param name="symbolCount"></param>
         /// </summary>
         /// <returns></returns>
-        public static Dictionary<char, double> CreateProbabilityTable(string file, out int symbolCount)
+        private static Dictionary<char, double> CreateProbabilityTable(string file, out int symbolCount)
         {
             symbolCount = 0;
             if (File.Exists(file))
@@ -104,11 +100,10 @@ namespace HuffmanArchiver
                         first.Add((char)temp, 1);
                     else first[(char)temp]++;
                 }
-
                 reader.Close();
 
                 foreach (var i in first)
-                    second.Add(i.Key, (double)i.Value / (double)symbolCount);
+                    second.Add(i.Key, (double)i.Value / symbolCount);
 
                 return second;
             }
@@ -123,7 +118,7 @@ namespace HuffmanArchiver
         /// <typeparam name="K"></typeparam>
         /// <typeparam name="V"></typeparam>
         /// <param name="dict"></param>
-        public static void PrintDictionary<K, V>(Dictionary<K, V> dict)
+        private static void PrintDictionary<K, V>(Dictionary<K, V> dict)
         {
             foreach (var i in dict)
                 if (typeof(V).Equals(typeof(double)) || typeof(V).Equals(typeof(float)))
@@ -137,7 +132,7 @@ namespace HuffmanArchiver
         /// </summary>
         /// <param name="slovar">Словарь: символ - вероятность</param>
         /// <returns></returns>
-        public static BinaryTree<string> CreateHuffmanTree(Dictionary<char, double> slovar)
+        private static BinaryTree<string> CreateHuffmanTree(Dictionary<char, double> slovar)
         {
             //Бинарное дерево
             var binaryTree = new Dictionary<string, double>();
@@ -177,7 +172,7 @@ namespace HuffmanArchiver
         /// <param name="binaryTree">Бинарное дерево</param>
         /// <param name="symbols">Символы словаря</param>
         /// <returns></returns>
-        public static Dictionary<char, string> CreateCodeTable(BinaryTree<string> binaryTree, List<char> symbols)
+        private static Dictionary<char, string> CreateCodeTable(BinaryTree<string> binaryTree, List<char> symbols)
         {
             var codeTable = new Dictionary<char, string>();
             //Присваивание символам бинарный код
@@ -210,7 +205,7 @@ namespace HuffmanArchiver
         /// <param name="encodedText">Файл для закодированного текста</param>
         /// <param name="bufferSize"></param>
         /// <param name="compresCoef">Коэффициент сжатия</param>
-        public static void EncodeFile(string uncodedText, string encodedText, int bufferSize, out double compresCoef)
+        private static void EncodeFile(string uncodedText, string encodedText, int bufferSize, out double compresCoef)
         {
             if (File.Exists(uncodedText))
             {
@@ -230,7 +225,7 @@ namespace HuffmanArchiver
                 while ((temp = reader.Read()) > -1)
                 {
                     var symbol = Convert.ToChar(temp);
-                    codeTable.TryGetValue(symbol, out string code);
+                    codeTable.TryGetValue(symbol, out var code);
                     binaryCode.Append(code);
                     if (binaryCode.Length > bufferSize * 8)
                     {
@@ -264,7 +259,7 @@ namespace HuffmanArchiver
         /// <param name="decodedText">Файл для раскодированого текста</param>
         /// <param name="readBufferSize"></param>
         /// <param name="writeBuffersize"></param>
-        public static void DecodeFile(string encodedText, string decodedText, int readBufferSize, int writeBuffersize)
+        private static void DecodeFile(string encodedText, string decodedText, int readBufferSize, int writeBuffersize)
         {
             if (File.Exists(encodedText))
             {
@@ -297,14 +292,14 @@ namespace HuffmanArchiver
 
                         if (decodedStr.Length >= writeBuffersize)
                         {
-                            var writeBuffer = Encoding.Unicode.GetBytes(decodedStr.ToString());
+                            var writeBuffer = Encoding.Default.GetBytes(decodedStr.ToString());
                             writer.Write(writeBuffer, 0, writeBuffer.Length);
                             decodedStr.Remove(0, writeBuffersize);
                         }
                     }
                 }
 
-                var writeBuffer2 = Encoding.Unicode.GetBytes(decodedStr.ToString());
+                var writeBuffer2 = Encoding.Default.GetBytes(decodedStr.ToString());
                 writer.Write(writeBuffer2, 0, writeBuffer2.Length);
 
                 breader.Close();
@@ -320,7 +315,7 @@ namespace HuffmanArchiver
         /// <param name="code"></param>
         /// <param name="huffmanTree"></param>
         /// <returns></returns>
-        public static char DecodeSymbol(ref string code, BinaryTree<string> huffmanTree)
+        private static char DecodeSymbol(ref string code, BinaryTree<string> huffmanTree)
         {
             var node = huffmanTree.Root;
             var count = 0;
@@ -353,7 +348,7 @@ namespace HuffmanArchiver
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        public static byte[] StringToByte(string str)
+        private static byte[] StringToByte(string str)
         {
             var bytes = new byte[str.Length / 8];
             for (var i = 0; i < str.Length / 8; i++)
