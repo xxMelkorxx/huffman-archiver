@@ -45,9 +45,9 @@ namespace HuffmanArchiver
         static void Main()
         {
             Console.OutputEncoding = Encoding.Unicode;
-            const string uncodedText = "../UncodedText.txt";
-            const string encodedText = "../EncodedText.txt";
-            const string decodedText = "../DecodedText.txt";
+            const string uncodedText = @"D:\SerBor\Dev\huffman-archiver\UncodedText.txt";
+            const string encodedText = @"D:\SerBor\Dev\huffman-archiver\EncodedText.txt";
+            const string decodedText = @"D:\SerBor\Dev\huffman-archiver\DecodedText.txt";
 
             // Исходная таблица
             var table = CreateProbabilityTable(uncodedText, out var symbolCount);
@@ -72,7 +72,6 @@ namespace HuffmanArchiver
             var fileUncode = new FileInfo(uncodedText);
             var fileEncode = new FileInfo(encodedText);
             var fileDecode = new FileInfo(decodedText);
-
 
             Console.WriteLine("\nРазмер исходного файла составляет {0} байт", fileUncode.Length);
             Console.WriteLine("Размер сжатого файла составляет {0} байт", fileEncode.Length);
