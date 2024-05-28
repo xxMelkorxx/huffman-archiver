@@ -9,7 +9,7 @@ namespace HuffmanArchiver
 {
     public static class ArchiverHuffman
     {
-        //Сохраняет дерево
+        // Сохраняет дерево
         [Serializable]
         public class BinaryTree<T>
         {
@@ -21,7 +21,7 @@ namespace HuffmanArchiver
             }
         }
 
-        //Сохраняет дерево для обратного хода
+        // Сохраняет дерево для обратного хода
         [Serializable]
         public class BinaryTreeNode<T>
         {
@@ -42,9 +42,10 @@ namespace HuffmanArchiver
             }
         }
 
-        private const string UncodedText = @"D:\SerBor\Dev\huffman-archiver\UncodedText.txt";
-        private const string EncodedText = @"D:\SerBor\Dev\huffman-archiver\EncodedText.txt";
-        private const string DecodedText = @"D:\SerBor\Dev\huffman-archiver\DecodedText.txt";
+        // Файлы для шифрования необходимо поместить в каталог, где расположен .exe
+        private const string UncodedText = "UncodedText.txt";
+        private const string EncodedText = "EncodedText.txt";
+        private const string DecodedText = "DecodedText.txt";
         
         private static void Main()
         {
@@ -55,20 +56,20 @@ namespace HuffmanArchiver
             Console.WriteLine("\nКоличество символов в тексте: {0}", symbolCount);
             Console.WriteLine("Количество уникальных символов: {0}", table.Count);
 
-            //Закодированная таблица
+            // Закодированная таблица
             var huffmanTree = CreateHuffmanTree(table);
             var codeTable = CreateCodeTable(huffmanTree, table.Keys.ToList());
             Console.WriteLine("\nКодовая таблица:");
             PrintDictionary(codeTable);
 
-            //Кодирование текста
+            // Кодирование текста
             EncodeFile(UncodedText, EncodedText, 4, out var comresCoef);
             Console.WriteLine("Коэффициент сжатия: K = {0}", comresCoef);
 
-            //Декодирование текста
+            // Декодирование текста
             DecodeFile(EncodedText, DecodedText, 8, 10);
             
-            //Итоговая информация.
+            // Итоговая информация
             Console.WriteLine("\nРазмер исходного файла составляет {0} байт", new FileInfo(UncodedText).Length);
             Console.WriteLine("Размер сжатого файла составляет {0} байт", new FileInfo(EncodedText).Length);
             Console.WriteLine("Размер декодированного файла составляет {0} байт", new FileInfo(DecodedText).Length);
@@ -103,7 +104,7 @@ namespace HuffmanArchiver
                 reader.Close();
 
                 foreach (var i in first)
-                    second.Add(i.Key, (double)i.Value / symbolCount);
+                    second[i.Key] = (double)i.Value / symbolCount;
 
                 return second;
             }
@@ -134,14 +135,14 @@ namespace HuffmanArchiver
         /// <returns></returns>
         private static BinaryTree<string> CreateHuffmanTree(Dictionary<char, double> slovar)
         {
-            //Бинарное дерево
+            // Бинарное дерево
             var binaryTree = new Dictionary<string, double>();
             foreach (var i in slovar)
-                binaryTree.Add(i.Key.ToString(), i.Value);
+                binaryTree[i.Key.ToString()] = i.Value;
 
             var nodeList = new Dictionary<string, BinaryTreeNode<string>>();
             foreach (var i in binaryTree.Keys)
-                nodeList.Add(i, new BinaryTreeNode<string>(i));
+                nodeList[i] = new BinaryTreeNode<string>(i);
 
             while (binaryTree.Count > 1)
             {
@@ -157,13 +158,13 @@ namespace HuffmanArchiver
 
                 binaryTree.Remove(s1);
                 binaryTree.Remove(s2);
-                binaryTree.Add(s3, d1 + d2);
+                binaryTree[s3] = d1 + d2;
 
                 nodeList.TryGetValue(s1, out var leftChild);
                 nodeList.TryGetValue(s2, out var rightChild);
                 nodeList.Remove(leftChild.Value);
                 nodeList.Remove(rightChild.Value);
-                nodeList.Add(s3, new BinaryTreeNode<string>(s3, leftChild, rightChild));
+                nodeList[s3] = new BinaryTreeNode<string>(s3, leftChild, rightChild);
             }
 
             nodeList.TryGetValue(binaryTree.ElementAt(0).Key, out var root);
@@ -197,7 +198,7 @@ namespace HuffmanArchiver
                         temp = temp.RightChild;
                     }
 
-                codeTable.Add(i, code.ToString());
+                codeTable[i] = code.ToString();
             }
 
             return codeTable;
@@ -229,8 +230,7 @@ namespace HuffmanArchiver
                 int temp;
                 while ((temp = reader.Read()) > -1)
                 {
-                    var symbol = Convert.ToChar(temp);
-                    codeTable.TryGetValue(symbol, out var code);
+                    codeTable.TryGetValue(Convert.ToChar(temp), out var code);
                     binaryCode.Append(code);
                     if (binaryCode.Length > bufferSize * 8)
                     {
