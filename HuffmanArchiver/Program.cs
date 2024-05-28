@@ -146,10 +146,15 @@ namespace HuffmanArchiver
             while (binaryTree.Count > 1)
             {
                 //Вспомогательный массив, который отбирает пару символов с наименьшей вероятностью
-                var helpmass = binaryTree.OrderByDescending(pair => pair.Value).Reverse().Take(2).ToArray();
+                var helpmass = binaryTree.OrderBy(pair => pair.Value).Take(2).ToArray();
                 //Скревляет эту пару символов, тем самым создаёт узел
-                string s1 = helpmass[0].Key, s2 = helpmass[1].Key, s3 = string.Concat(s1, s2);
-                double d1 = helpmass[0].Value, d2 = helpmass[1].Value;
+                var s1 = helpmass[0].Key;
+                var s2 = helpmass[1].Key;
+                var s3 = string.Concat(s1, s2);
+
+                var d1 = helpmass[0].Value;
+                var d2 = helpmass[1].Value;
+
                 binaryTree.Remove(s1);
                 binaryTree.Remove(s2);
                 binaryTree.Add(s3, d1 + d2);
